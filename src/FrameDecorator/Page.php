@@ -545,14 +545,19 @@ class Page extends AbstractFrameDecorator
             }
 
             if ($this->_page_break_allowed($iter)) {
-                Helpers::dompdf_debug("page-break", "break allowed, splitting.");
-                $iter->split(null, true);
-                $this->_page_full = true;
-                $this->_in_table = $in_table;
-                $frame->_already_pushed = true;
+				// Only break if the page is not full yet (if full, we're likely to have already split a nested table)
+				if (!$this->_page_full) {
+					Helpers::dompdf_debug("page-break", "break allowed, splitting.");
+					$iter->split(null, true);
+					$this->_page_full = true;
+					$this->_in_table = $in_table;
+					$frame->_already_pushed = true;
 
-                return true;
-            }
+					return true;
+				} else {
+					return false;
+				}
+			}
 
             if (!$flg && $next = $iter->get_last_child()) {
                 Helpers::dompdf_debug("page-break", "following last child.");
